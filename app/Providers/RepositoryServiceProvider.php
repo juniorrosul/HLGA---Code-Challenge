@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+// Contracts
+use App\Contracts\BreedContract;
+// Repositories
+use App\Repositories\BreedRepository;
+// Default
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -13,7 +18,7 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind(BreedContract::class, BreedRepository::class);
     }
 
     /**

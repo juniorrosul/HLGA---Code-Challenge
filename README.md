@@ -15,7 +15,14 @@ This is a challenge code application. The main objective is create a PHP Web API
    7. Feel free to use any third-party library;
    8. The project must be on Github;
    9. If you find any blocker while solving the challenge, feel free to apply any solution you find  necessary to complete it 
- 
+
+## Configurations
+
+### Generate API for 3th party CatAPI
+
+Access https://thecatapi.com and follow the guide line.
+
+
 
 ## License
 
