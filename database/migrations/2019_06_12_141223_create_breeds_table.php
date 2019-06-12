@@ -28,7 +28,7 @@ class CreateBreedsTable extends Migration
             $table->boolean('hairless');
             $table->boolean('natural');
             $table->boolean('rex');
-            $table->boolean('suppress_tail');
+            $table->boolean('suppressed_tail');
             $table->boolean('short_legs');
             $table->boolean('hypoallergenic');
             $table->unsignedInteger('adaptability');

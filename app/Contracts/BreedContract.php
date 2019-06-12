@@ -33,7 +33,7 @@ interface BreedContract
      * @param bool   $hairless
      * @param bool   $natural
      * @param bool   $rex
-     * @param bool   $suppressTail
+     * @param bool   $suppressedTail
      * @param bool   $shortLegs
      * @param bool   $hypoallergenic
      * @param int    $adaptability
@@ -65,7 +65,7 @@ interface BreedContract
         bool $hairless,
         bool $natural,
         bool $rex,
-        bool $suppressTail,
+        bool $suppressedTail,
         bool $shortLegs,
         bool $hypoallergenic,
         int $adaptability,

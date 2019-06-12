@@ -39,7 +39,7 @@ class BreedRepository implements BreedContract
      * @param bool   $hairless
      * @param bool   $natural
      * @param bool   $rex
-     * @param bool   $suppressTail
+     * @param bool   $suppressedTail
      * @param bool   $shortLegs
      * @param bool   $hypoallergenic
      * @param int    $adaptability
@@ -58,7 +58,7 @@ class BreedRepository implements BreedContract
      *
      * @return Breed
      */
-    public function create(string $id, string $name, string $temperament, string $lifeSpan, string $altNames, string $wikipediaUrl, string $origin, string $weightImperial, bool $experimental, bool $hairless, bool $natural, bool $rex, bool $suppressTail, bool $shortLegs, bool $hypoallergenic, int $adaptability, int $affectionLevel, string $countryCode, int $childFriendly, int $dogFriendly, int $energyLevel, int $grooming, int $healthIssues, int $intelligence, int $sheddingLevel, int $socialNeeds, int $strangerFriendly, int $vocalisation): Breed
+    public function create(string $id, string $name, string $temperament, string $lifeSpan, string $altNames, string $wikipediaUrl, string $origin, string $weightImperial, bool $experimental, bool $hairless, bool $natural, bool $rex, bool $suppressedTail, bool $shortLegs, bool $hypoallergenic, int $adaptability, int $affectionLevel, string $countryCode, int $childFriendly, int $dogFriendly, int $energyLevel, int $grooming, int $healthIssues, int $intelligence, int $sheddingLevel, int $socialNeeds, int $strangerFriendly, int $vocalisation): Breed
     {
         // prevent duplicated
         $breed = Breed::firstOrCreate([
@@ -74,7 +74,7 @@ class BreedRepository implements BreedContract
             'hairless' => $hairless,
             'natural' => $natural,
             'rex' => $rex,
-            'suppress_tail' => $suppressTail,
+            'suppressed_tail' => $suppressedTail,
             'short_legs' => $shortLegs,
             'hypoallergenic' => $hypoallergenic,
             'adaptability' => $adaptability,
@@ -128,7 +128,7 @@ class BreedRepository implements BreedContract
                 $breed->hairless,
                 $breed->natural,
                 $breed->rex,
-                $breed->suppress_tail,
+                $breed->suppressed_tail,
                 $breed->short_legs,
                 $breed->hypoallergenic,
                 $breed->adaptability,
