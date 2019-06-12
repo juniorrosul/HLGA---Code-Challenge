@@ -35,9 +35,9 @@ class BreedsController extends Controller
      */
     public function show(Request $request)
     {
-        $breed = $this->breedContract->getByName($request->name);
+        $breeds = $this->breedContract->getByName($request->name);
 
         return response()
-            ->json(compact('breed'));
+            ->json($breeds);
     }
 }

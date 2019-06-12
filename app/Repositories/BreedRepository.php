@@ -6,7 +6,6 @@ use App\Contracts\BreedContract;
 use App\Breed;
 use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Collection;
-use stdClass;
 
 class BreedRepository implements BreedContract
 {
@@ -20,7 +19,7 @@ class BreedRepository implements BreedContract
         $breeds = Breed::where('name', 'like', '%'.$breedName.'%')->get();
 
         if (empty($breed)) {
-            $breedApi = $this->loadFromExternalApi($breedName);
+            $breeds = $this->loadFromExternalApi($breedName);
         }
 
         return $breeds;
@@ -98,9 +97,9 @@ class BreedRepository implements BreedContract
     /**
      * @param string $breedName
      *
-     * @return array
+     * @return Collection
      */
-    private function loadFromExternalApi(string $breedName) : array
+    private function loadFromExternalApi(string $breedName) : Collection
     {
         $client = new Client([
             'headers' => [
@@ -109,13 +108,19 @@ class BreedRepository implements BreedContract
         ]);
 
         $response = $client->get('https://api.thecatapi.com/v1/breeds/search', [
-            'q' => $breedName,
+            'query' => [
+                'q' => $breedName,
+            ],
         ]);
 
-        $breeds = json_decode($response->getBody()->getContents());
+        $breedsApi = json_decode($response->getBody()->getContents());
 
-        foreach ($breeds as $key => $breed) {
-            $this->create(
+        $breeds = new Collection();
+
+        foreach ($breedsApi as $key => $breed) {
+
+            \Log::debug('breed', compact('key', 'breed'));
+            $current = $this->create(
                 $breed->id,
                 $breed->name,
                 $breed->temperament,
@@ -145,6 +150,8 @@ class BreedRepository implements BreedContract
                 $breed->stranger_friendly,
                 $breed->vocalisation
             );
+
+            $breeds->push($current);
         }
 
         return $breeds;
