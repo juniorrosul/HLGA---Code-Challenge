@@ -7,6 +7,8 @@ use App\Breed;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Cache;
 
 class BreedRepository implements BreedContract
 {
@@ -17,10 +19,15 @@ class BreedRepository implements BreedContract
      */
     public function getByName(string $breedName) : Collection
     {
-        $breeds = Breed::where('name', 'like', $breedName.'%')->get();
-        
+        $breeds = Cache::remember($breedName, 600,function () use ($breedName) {
+            try {
+                return Breed::where('name', 'like', $breedName.'%')->get();
+            } catch (QueryException $e) {
+                return [];
+            }
+        });
+
         if (empty($breeds) or $breeds->count() == 0) {
-            \Log::info('empty breeds');
             $breeds = $this->loadFromExternalApi($breedName);
         }
 
@@ -61,37 +68,41 @@ class BreedRepository implements BreedContract
      */
     public function create(string $id, string $name, string $temperament, string $lifeSpan, string $altNames, string $wikipediaUrl, string $origin, string $weightImperial, bool $experimental, bool $hairless, bool $natural, bool $rex, bool $suppressedTail, bool $shortLegs, bool $hypoallergenic, int $adaptability, int $affectionLevel, string $countryCode, int $childFriendly, int $dogFriendly, int $energyLevel, int $grooming, int $healthIssues, int $intelligence, int $sheddingLevel, int $socialNeeds, int $strangerFriendly, int $vocalisation): Breed
     {
-        // prevent duplicated
-        $breed = Breed::firstOrCreate([
-            'breed_id' => $id,
-            'name' => $name,
-            'temperament' => $temperament,
-            'life_span' => $lifeSpan,
-            'alt_names' => $altNames,
-            'wikipedia_url' => $wikipediaUrl,
-            'origin' => $origin,
-            'weight_imperial' => $weightImperial,
-            'experimental' => $experimental,
-            'hairless' => $hairless,
-            'natural' => $natural,
-            'rex' => $rex,
-            'suppressed_tail' => $suppressedTail,
-            'short_legs' => $shortLegs,
-            'hypoallergenic' => $hypoallergenic,
-            'adaptability' => $adaptability,
-            'affection_level' => $affectionLevel,
-            'country_code' => $countryCode,
-            'child_friendly' => $childFriendly,
-            'dog_friendly' => $dogFriendly,
-            'energy_level' => $energyLevel,
-            'grooming' => $grooming,
-            'health_issues' => $healthIssues,
-            'intelligence' => $intelligence,
-            'shedding_level' => $sheddingLevel,
-            'social_needs' => $socialNeeds,
-            'stranger_friendly' => $strangerFriendly,
-            'vocalisation' => $vocalisation,
-        ]);
+        try {
+            // prevent duplicated
+            $breed = Breed::firstOrCreate([
+                'breed_id' => $id,
+                'name' => $name,
+                'temperament' => $temperament,
+                'life_span' => $lifeSpan,
+                'alt_names' => $altNames,
+                'wikipedia_url' => $wikipediaUrl,
+                'origin' => $origin,
+                'weight_imperial' => $weightImperial,
+                'experimental' => $experimental,
+                'hairless' => $hairless,
+                'natural' => $natural,
+                'rex' => $rex,
+                'suppressed_tail' => $suppressedTail,
+                'short_legs' => $shortLegs,
+                'hypoallergenic' => $hypoallergenic,
+                'adaptability' => $adaptability,
+                'affection_level' => $affectionLevel,
+                'country_code' => $countryCode,
+                'child_friendly' => $childFriendly,
+                'dog_friendly' => $dogFriendly,
+                'energy_level' => $energyLevel,
+                'grooming' => $grooming,
+                'health_issues' => $healthIssues,
+                'intelligence' => $intelligence,
+                'shedding_level' => $sheddingLevel,
+                'social_needs' => $socialNeeds,
+                'stranger_friendly' => $strangerFriendly,
+                'vocalisation' => $vocalisation,
+            ]);
+        } catch (QueryException $e) {
+            $breed = new Breed();
+        }
 
         return $breed;
     }
@@ -124,8 +135,6 @@ class BreedRepository implements BreedContract
         $breeds = new Collection();
 
         foreach ($breedsApi as $key => $breed) {
-
-            \Log::debug('breed', compact('key', 'breed'));
             $current = $this->create(
                 $breed->id,
                 empty($breed->name) ? '' : $breed->name,
@@ -157,7 +166,9 @@ class BreedRepository implements BreedContract
                 empty($breed->vocalisation) ? 1 : $breed->vocalisation
             );
 
-            $breeds->push($current);
+            if ($current != new Breed()) {
+                $breeds->push($current);
+            }
         }
 
         return $breeds;
