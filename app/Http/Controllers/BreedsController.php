@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\BreedContract;
+use App\Http\Requests\BreedGetRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -29,11 +30,11 @@ class BreedsController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param BreedGetRequest $request
      *
      * @return JsonResponse
      */
-    public function show(Request $request)
+    public function show(BreedGetRequest $request)
     {
         $breeds = $this->breedContract->getByName($request->name);
 
