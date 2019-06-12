@@ -5,58 +5,102 @@ namespace App\Repositories;
 use App\Contracts\BreedContract;
 use App\Breed;
 use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\Collection;
 use stdClass;
 
 class BreedRepository implements BreedContract
 {
-    public function getByName(string $breedId): Breed
+    /**
+     * @param string $breedName
+     *
+     * @return Collection
+     */
+    public function getByName(string $breedName) : Collection
     {
-        $breed = Breed::where('breed_id', $breedId)->first();
+        $breeds = Breed::where('name', 'like', '%'.$breedName.'%')->get();
 
         if (empty($breed)) {
-            $breedApi = $this->loadFromExternalApi($breedId);
-
-            $breed = $this->create(
-                $breedApi->id,
-                $breedApi->name,
-                $breedApi->temperament,
-                $breedApi->life_span,
-                $breedApi->alt_names,
-                $breedApi->wikipedia_url,
-                $breedApi->origin,
-                $breedApi->weight_imperial,
-                $breedApi->experimental,
-                $breedApi->hairless,
-                $breedApi->natural,
-                $breedApi->rex,
-                $breedApi->suppress_tail,
-                $breedApi->short_legs,
-                $breedApi->hypoallergenic,
-                $breedApi->adaptability,
-                $breedApi->affection_level,
-                $breedApi->country_code,
-                $breedApi->child_friendly,
-                $breedApi->dog_friendly,
-                $breedApi->energy_level,
-                $breedApi->grooming,
-                $breedApi->health_issues,
-                $breedApi->intelligence,
-                $breedApi->shedding_level,
-                $breedApi->social_needs,
-                $breedApi->stranger_friendly,
-                $breedApi->vocalisation
-            );
+            $breedApi = $this->loadFromExternalApi($breedName);
         }
+
+        return $breeds;
+    }
+
+    /**
+     * @param string $id
+     * @param string $name
+     * @param string $temperament
+     * @param string $lifeSpan
+     * @param string $altNames
+     * @param string $wikipediaUrl
+     * @param string $origin
+     * @param string $weightImperial
+     * @param bool   $experimental
+     * @param bool   $hairless
+     * @param bool   $natural
+     * @param bool   $rex
+     * @param bool   $suppressTail
+     * @param bool   $shortLegs
+     * @param bool   $hypoallergenic
+     * @param int    $adaptability
+     * @param int    $affectionLevel
+     * @param string $countryCode
+     * @param int    $childFriendly
+     * @param int    $dogFriendly
+     * @param int    $energyLevel
+     * @param int    $grooming
+     * @param int    $healthIssues
+     * @param int    $intelligence
+     * @param int    $sheddingLevel
+     * @param int    $socialNeeds
+     * @param int    $strangerFriendly
+     * @param int    $vocalisation
+     *
+     * @return Breed
+     */
+    public function create(string $id, string $name, string $temperament, string $lifeSpan, string $altNames, string $wikipediaUrl, string $origin, string $weightImperial, bool $experimental, bool $hairless, bool $natural, bool $rex, bool $suppressTail, bool $shortLegs, bool $hypoallergenic, int $adaptability, int $affectionLevel, string $countryCode, int $childFriendly, int $dogFriendly, int $energyLevel, int $grooming, int $healthIssues, int $intelligence, int $sheddingLevel, int $socialNeeds, int $strangerFriendly, int $vocalisation): Breed
+    {
+        // prevent duplicated
+        $breed = Breed::firstOrCreate([
+            'breed_id' => $id,
+            'name' => $name,
+            'temperament' => $temperament,
+            'life_span' => $lifeSpan,
+            'alt_names' => $altNames,
+            'wikipedia_url' => $wikipediaUrl,
+            'origin' => $origin,
+            'weight_imperial' => $weightImperial,
+            'experimental' => $experimental,
+            'hairless' => $hairless,
+            'natural' => $natural,
+            'rex' => $rex,
+            'suppress_tail' => $suppressTail,
+            'short_legs' => $shortLegs,
+            'hypoallergenic' => $hypoallergenic,
+            'adaptability' => $adaptability,
+            'affection_level' => $affectionLevel,
+            'country_code' => $countryCode,
+            'child_friendly' => $childFriendly,
+            'dog_friendly' => $dogFriendly,
+            'energy_level' => $energyLevel,
+            'grooming' => $grooming,
+            'health_issues' => $healthIssues,
+            'intelligence' => $intelligence,
+            'shedding_level' => $sheddingLevel,
+            'social_needs' => $socialNeeds,
+            'stranger_friendly' => $strangerFriendly,
+            'vocalisation' => $vocalisation,
+        ]);
 
         return $breed;
     }
 
-    public function create(string $id, string $name, string $temperament, string $lifeSpan, string $altNames, string $wikipediaUrl, string $origin, string $weightImperial, bool $experimental, bool $hairless, bool $natural, bool $rex, bool $suppressTail, bool $shortLegs, bool $hypoallergenic, int $adaptability, int $affectionLevel, string $countryCode, int $childFriendly, int $dogFriendly, int $energyLevel, int $grooming, int $healthIssues, int $intelligence, int $sheddingLevel, int $socialNeeds, int $strangerFriendly, int $vocalisation): Breed
-    {
-        return new Breed();
-    }
-
-    private function loadFromExternalApi(string $breedId) : stdClass
+    /**
+     * @param string $breedName
+     *
+     * @return array
+     */
+    private function loadFromExternalApi(string $breedName) : array
     {
         $client = new Client([
             'headers' => [
@@ -65,15 +109,44 @@ class BreedRepository implements BreedContract
         ]);
 
         $response = $client->get('https://api.thecatapi.com/v1/breeds/search', [
-            'name' => $breedId,
+            'q' => $breedName,
         ]);
 
         $breeds = json_decode($response->getBody()->getContents());
 
-        print_r(compact('breeds', 'breedId'));
-
         foreach ($breeds as $key => $breed) {
-            print_r(compact('key', 'breed'));
+            $this->create(
+                $breed->id,
+                $breed->name,
+                $breed->temperament,
+                $breed->life_span,
+                $breed->alt_names,
+                $breed->wikipedia_url,
+                $breed->origin,
+                $breed->weight->imperial,
+                $breed->experimental,
+                $breed->hairless,
+                $breed->natural,
+                $breed->rex,
+                $breed->suppress_tail,
+                $breed->short_legs,
+                $breed->hypoallergenic,
+                $breed->adaptability,
+                $breed->affection_level,
+                $breed->country_code,
+                $breed->child_friendly,
+                $breed->dog_friendly,
+                $breed->energy_level,
+                $breed->grooming,
+                $breed->health_issues,
+                $breed->intelligence,
+                $breed->shedding_level,
+                $breed->social_needs,
+                $breed->stranger_friendly,
+                $breed->vocalisation
+            );
         }
+
+        return $breeds;
     }
 }

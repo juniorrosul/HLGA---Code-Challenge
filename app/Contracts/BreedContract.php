@@ -3,6 +3,7 @@
 namespace App\Contracts;
 
 use App\Breed;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Interface BreedContract
@@ -13,11 +14,11 @@ interface BreedContract
 {
 
     /**
-     * @param string $breedId
+     * @param string $breedName
      *
-     * @return Breed
+     * @return Collection
      */
-    public function getByName(string $breedId) : Breed;
+    public function getByName(string $breedName) : Collection;
 
     /**
      * @param string $id
