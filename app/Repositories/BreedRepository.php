@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Contracts\BreedContract;
 use App\Breed;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Database\Eloquent\Collection;
 
 class BreedRepository implements BreedContract
@@ -18,7 +19,7 @@ class BreedRepository implements BreedContract
     {
         $breeds = Breed::where('name', 'like', '%'.$breedName.'%')->get();
 
-        if (empty($breed)) {
+        if (empty($breeds)) {
             $breeds = $this->loadFromExternalApi($breedName);
         }
 
@@ -107,13 +108,17 @@ class BreedRepository implements BreedContract
             ],
         ]);
 
-        $response = $client->get('https://api.thecatapi.com/v1/breeds/search', [
-            'query' => [
-                'q' => $breedName,
-            ],
-        ]);
+        try {
+            $response = $client->get('https://api.thecatapi.com/v1/breeds/search', [
+                'query' => [
+                    'q' => $breedName,
+                ],
+            ]);
+            $breedsApi = json_decode($response->getBody()->getContents());
+        } catch (ConnectException $e) {
+            $breedsApi = [];
+        }
 
-        $breedsApi = json_decode($response->getBody()->getContents());
 
         $breeds = new Collection();
 
