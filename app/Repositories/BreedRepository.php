@@ -17,9 +17,10 @@ class BreedRepository implements BreedContract
      */
     public function getByName(string $breedName) : Collection
     {
-        $breeds = Breed::where('name', 'like', '%'.$breedName.'%')->get();
-
-        if (empty($breeds)) {
+        $breeds = Breed::where('name', 'like', $breedName.'%')->get();
+        
+        if (empty($breeds) or $breeds->count() == 0) {
+            \Log::info('empty breeds');
             $breeds = $this->loadFromExternalApi($breedName);
         }
 
