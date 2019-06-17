@@ -22,7 +22,7 @@ class BreedRepository implements BreedContract
     {
         $breed = Cache::remember('ID-'.$breedId, 600, function () use ($breedId) {
             try {
-                return Breed::whereBreedId($breedId)->first();
+                return $this->breedQueryBuilder(['breed_id' => $breedId])->first();
             } catch (QueryException $e) {
                 return [];
             }
@@ -33,14 +33,15 @@ class BreedRepository implements BreedContract
 
     /**
      * @param string $breedName
+     * @param bool   $experimental
      *
      * @return Collection
      */
-    public function getByName(string $breedName) : Collection
+    public function getByName(string $breedName, bool $experimental = false) : Collection
     {
-        $breeds = Cache::remember($breedName, 600,function () use ($breedName) {
+        $breeds = Cache::remember($breedName, 600,function () use ($breedName, $experimental) {
             try {
-                return Breed::where('name', 'like', $breedName.'%')->get();
+                return $this->breedQueryBuilder(['name' => $breedName, 'experimental' => $experimental])->get();
             } catch (QueryException $e) {
                 return [];
             }
@@ -61,12 +62,13 @@ class BreedRepository implements BreedContract
     /**
      * @param string $breedName
      * @param int    $pageNumber
+     * @param bool   $experimental
      *
      * @return LengthAwarePaginator
      */
-    public function getByNamePaginated(string $breedName, int $pageNumber) : LengthAwarePaginator
+    public function getByNamePaginated(string $breedName, int $pageNumber, bool $experimental = false) : LengthAwarePaginator
     {
-        $breeds = $this->getBreedsByNamePaginated($breedName, $pageNumber);
+        $breeds = $this->getBreedsByNamePaginated($breedName, $pageNumber, $experimental);
 
         // Empty result check API for results.
         if (empty($breeds) or $breeds->count() == 0) {
@@ -76,7 +78,7 @@ class BreedRepository implements BreedContract
                 return $_self->getByNameFromExternalApi($breedName);
             });
 
-            $breeds = $this->getBreedsByNamePaginated($breedName, $pageNumber, true);
+            $breeds = $this->getBreedsByNamePaginated($breedName, $pageNumber, $experimental,true);
 
         }
 
@@ -223,7 +225,15 @@ class BreedRepository implements BreedContract
         return $breeds;
     }
 
-    private function getBreedsByNamePaginated(string $breedName, int $pageNumber, bool $reCache = false) : LengthAwarePaginator
+    /**
+     * @param string $breedName
+     * @param int    $pageNumber
+     * @param bool   $experimental
+     * @param bool   $reCache
+     *
+     * @return LengthAwarePaginator
+     */
+    private function getBreedsByNamePaginated(string $breedName, int $pageNumber, bool $experimental, bool $reCache = false) : LengthAwarePaginator
     {
         $cacheName = 'PAG-'.$pageNumber.'-'.$breedName;
 
@@ -231,12 +241,44 @@ class BreedRepository implements BreedContract
             Cache::forget($cacheName);
         }
 
-        return Cache::remember($cacheName, 600,function () use ($breedName) {
+        return Cache::remember($cacheName, 600,function () use ($breedName, $experimental) {
             try {
-                return Breed::where('name', 'like', $breedName.'%')->paginate();
+                return $this->breedQueryBuilder(['name' => $breedName, 'experimental' => $experimental])->paginate();
             } catch (QueryException $e) {
                 return new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15);
             }
         });
+    }
+
+    /**
+     * @param array $breedOptions
+     *
+     * @return Breed
+     */
+    private function breedQueryBuilder(array $breedOptions) : Breed
+    {
+        $breedQueryBuilder = new Breed();
+
+        // By default filter out experimental breeds, otherwise include then.
+        if (!empty($breedOptions['experimental']) and $breedOptions['experimental']) {
+            $breedQueryBuilder->whereIn('experimental', [true, false]);
+        } else {
+            $breedQueryBuilder->whereExperimental(false);
+        }
+
+        foreach ($breedOptions as $key => $option) {
+            switch ($key) {
+                case 'name':
+                    $breedQueryBuilder->where('name', 'like', $option.'%');
+                    break;
+                case 'breed_id':
+                    $breedQueryBuilder->whereBreedId($option);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return $breedQueryBuilder;
     }
 }

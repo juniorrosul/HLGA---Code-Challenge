@@ -73,9 +73,9 @@ class BreedsController extends Controller
     public function index(BreedGetRequest $request)
     {
         if ($request->has('page')) {
-            $breeds = $this->breedContract->getByNamePaginated($request->name, $request->page);
+            $breeds = $this->breedContract->getByNamePaginated($request->name, $request->page, $request->has('experimental') ? $request->experimental : false);
         } else {
-            $breeds = $this->breedContract->getByName($request->name);
+            $breeds = $this->breedContract->getByName($request->name, $request->has('experimental') ? $request->experimental : false);
         }
 
         return response()

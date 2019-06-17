@@ -22,18 +22,20 @@ interface BreedContract
 
     /**
      * @param string $breedName
+     * @param bool   $experimental
      *
      * @return Collection
      */
-    public function getByName(string $breedName) : Collection;
+    public function getByName(string $breedName, bool $experimental = false) : Collection;
 
     /**
      * @param string $breedName
      * @param int    $pageNumber
+     * @param bool   $experimental
      *
      * @return LengthAwarePaginator
      */
-    public function getByNamePaginated(string $breedName, int $pageNumber) : LengthAwarePaginator;
+    public function getByNamePaginated(string $breedName, int $pageNumber, bool $experimental = false) : LengthAwarePaginator;
 
     /**
      * @param string $id

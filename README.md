@@ -22,6 +22,9 @@ All API documentation are available at: `[example.com]/docs`. But can be showed 
 
 - `GET [example.com]/breeds/?name=sib`
     - Search all breeds starting with query string `name`
+- `GET [example.com]/breeds/?name=sib&experimental=true`
+    - Search all breeds starting with query string `name`
+    - `experimental` query string bring breeds with this tag
 - `GET [example.com]/breeds/?name=sib&page=1`
     - Search all breeds starting with query string `name`
     - Return paginated object, if query string `page` is available.
