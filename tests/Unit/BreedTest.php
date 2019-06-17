@@ -17,6 +17,9 @@ class BreedTest extends TestCase
      */
     private $breedContract;
 
+    /**
+     *  Setup the test.
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -24,6 +27,29 @@ class BreedTest extends TestCase
         $this->breedContract = app(BreedContract::class);
     }
 
+    public function testGetByIdEmpty()
+    {
+        $breedExpected = null;
+
+        $breed = $this->breedContract->getById('sibe');
+
+        $this->assertEquals($breedExpected, $breed);
+    }
+
+    public function testGetByID()
+    {
+        factory(Breed::class)->create($this->generateSibArray());
+
+        $breedExpected = Breed::whereBreedId('sibe')->first();
+
+        $breed = $this->breedContract->getById('sibe');
+
+        $this->assertEquals($breedExpected, $breed);
+    }
+
+    /**
+     *  Test get by name method from repository.
+     */
     public function testGetByName()
     {
         factory(Breed::class)->create($this->generateSibArray());
@@ -35,11 +61,12 @@ class BreedTest extends TestCase
         $this->assertEquals($breedExpected, $breed);
     }
 
-    public function createTest()
+    /**
+     * Test create method from repository
+     */
+    public function testCreate()
     {
-        $breedExpected = factory(Breed::class)->make($this->generateSibArray());
-
-        $breed = $this->breedContract->create(
+        $this->breedContract->create(
             'sibe',
             'Siberian',
             'Curious, Intelligent, Loyal, Sweet, Agile, Playful, Affectionate',
@@ -70,6 +97,43 @@ class BreedTest extends TestCase
             1
         );
 
-        $this->assertEquals($breedExpected, $breed);
+        $this->assertDatabaseHas('breeds', $this->generateSibArray());
+    }
+
+    public function testCreateExistingContent()
+    {
+        factory(Breed::class)->create($this->generateSibArray());
+        $this->breedContract->create(
+            'sibe',
+            'Siberian',
+            'Curious, Intelligent, Loyal, Sweet, Agile, Playful, Affectionate',
+            '12 - 15',
+            'Moscow Semi-longhair, HairSiberian Forest Cat',
+            'https://en.wikipedia.org/wiki/Siberian_(cat)',
+            'Russia',
+            '8 - 16',
+            false,
+            false,
+            true,
+            false,
+            false,
+            false,
+            true,
+            5,
+            5,
+            'RU',
+            4,
+            5,
+            5,
+            2,
+            2,
+            5,
+            3,
+            4,
+            3,
+            1
+        );
+
+        $this->assertDatabaseHas('breeds', $this->generateSibArray());
     }
 }

@@ -12,6 +12,12 @@ use Illuminate\Database\Eloquent\Collection;
  */
 interface BreedContract
 {
+    /**
+     * @param string $breedId
+     *
+     * @return Breed
+     */
+    public function getById(string $breedId) : ?Breed;
 
     /**
      * @param string $breedName

@@ -32,9 +32,6 @@ class BreedsController extends Controller
     /**
      * @param BreedGetRequest $request
      * @queryParam name required The breed initial part of name.
-     *
-     * @return JsonResponse
-     *
      * @response {[
      *               {
      *                   "breed_id": "sibe",
@@ -70,12 +67,22 @@ class BreedsController extends Controller
      *                   "id": 4
      *              }
      * ]}
+     *
+     * @return JsonResponse
      */
-    public function show(BreedGetRequest $request)
+    public function index(BreedGetRequest $request)
     {
         $breeds = $this->breedContract->getByName($request->name);
 
         return response()
             ->json($breeds);
+    }
+
+    public function show(Request $request)
+    {
+        $breed = $this->breedContract->getById($request->breedId);
+
+        return response()
+            ->json($breed);
     }
 }

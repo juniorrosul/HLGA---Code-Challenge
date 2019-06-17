@@ -13,6 +13,24 @@ use Illuminate\Support\Facades\Cache;
 class BreedRepository implements BreedContract
 {
     /**
+     * @param string $breedId
+     *
+     * @return Breed
+     */
+    public function getById(string $breedId) : ?Breed
+    {
+        $breed = Cache::remember('ID-'.$breedId, 600, function () use ($breedId) {
+            try {
+                return Breed::whereBreedId($breedId)->first();
+            } catch (QueryException $e) {
+                return [];
+            }
+        });
+
+        return $breed;
+    }
+
+    /**
      * @param string $breedName
      *
      * @return Collection
@@ -27,11 +45,12 @@ class BreedRepository implements BreedContract
             }
         });
 
+        // Empty result check API for results.
         if (empty($breeds) or $breeds->count() == 0) {
             $_self = $this;
 
             $breeds = Cache::remember($breedName.'-api', 600, function () use ($_self, $breedName) {
-                return $_self->loadFromExternalApi($breedName);
+                return $_self->getByNameFromExternalApi($breedName);
             });
         }
 
@@ -116,7 +135,7 @@ class BreedRepository implements BreedContract
      *
      * @return Collection
      */
-    private function loadFromExternalApi(string $breedName) : Collection
+    private function getByNameFromExternalApi(string $breedName) : Collection
     {
         $client = new Client([
             'headers' => [

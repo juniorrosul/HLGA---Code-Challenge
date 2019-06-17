@@ -3,21 +3,12 @@
 namespace Tests\Feature;
 
 use App\Breed;
-use App\Contracts\BreedContract;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class BreedControllerTest extends TestCase
 {
     use RefreshDatabase;
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $this->breedContract = app(BreedContract::class);
-    }
 
     /**
      * A basic feature test example.
@@ -42,5 +33,33 @@ class BreedControllerTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJson([$this->generateSibArray()]); // array of results
+    }
+
+    public function testMultipleRequests()
+    {
+        factory(Breed::class)->create($this->generateSibArray());
+
+        $response = $this->get('/breeds/?name=sib');
+
+        $response
+            ->assertStatus(200)
+            ->assertJson([$this->generateSibArray()]); // array of results
+
+        $response2 = $this->get('/breeds/?name=sib');
+
+        $response2
+            ->assertStatus(200)
+            ->assertJson([$this->generateSibArray()]); // array of results
+    }
+
+    public function testIdRequest()
+    {
+        $breed = factory(Breed::class)->create($this->generateSibArray());
+
+        $response = $this->get('/breeds/sibe');
+
+        $response
+            ->assertStatus(200)
+            ->assertJson($breed->toArray()); // array of results
     }
 }

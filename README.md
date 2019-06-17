@@ -16,6 +16,15 @@ This is a challenge code application. The main objective is create a PHP Web API
    8. The project must be on Github;
    9. If you find any blocker while solving the challenge, feel free to apply any solution you find  necessary to complete it 
 
+## Using the API
+
+All API documentation are available at: `[example.com]/docs`. But can be showed below:
+
+- `GET [example.com]/breeds/?name=sib`
+    - Search all breeds starting with query string `name`
+- `GET [example.com]/breeds/{breedID}`
+    - Search a local breed with exact `breed_id`
+
 ## Configurations
 
 ### Initial configuration
