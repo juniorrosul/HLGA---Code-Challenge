@@ -32,7 +32,7 @@ curl -X GET -G "/breeds"
 const url = new URL("/breeds");
 
     let params = {
-            "name": "sit",
+            "name": "cum",
         };
     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
@@ -65,5 +65,40 @@ Parameter | Status | Description
     name |  required  | The breed initial part of name.
 
 <!-- END_e8df87899e3c464b1ccbf8d0a2412b8f -->
+
+<!-- START_c152c398c3f27f4acb67dd4506147422 -->
+## breeds/{breedId}
+> Example request:
+
+```bash
+curl -X GET -G "/breeds/1" 
+```
+```javascript
+const url = new URL("/breeds/1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+> Example response (200):
+
+```json
+{}
+```
+
+### HTTP Request
+`GET breeds/{breedId}`
+
+
+<!-- END_c152c398c3f27f4acb67dd4506147422 -->
 
 

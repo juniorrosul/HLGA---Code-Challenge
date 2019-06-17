@@ -58,7 +58,7 @@
 <pre><code class="language-javascript">const url = new URL("/breeds");
 
     let params = {
-            "name": "sit",
+            "name": "cum",
         };
     Object.keys(params).forEach(key =&gt; url.searchParams.append(key, params[key]));
 
@@ -97,6 +97,32 @@ fetch(url, {
 </tbody>
 </table>
 <!-- END_e8df87899e3c464b1ccbf8d0a2412b8f -->
+<!-- START_c152c398c3f27f4acb67dd4506147422 -->
+<h2>breeds/{breedId}</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X GET -G "/breeds/1" </code></pre>
+<pre><code class="language-javascript">const url = new URL("/breeds/1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<blockquote>
+<p>Example response (200):</p>
+</blockquote>
+<pre><code class="language-json">{}</code></pre>
+<h3>HTTP Request</h3>
+<p><code>GET breeds/{breedId}</code></p>
+<!-- END_c152c398c3f27f4acb67dd4506147422 -->
       </div>
       <div class="dark-box">
                         <div class="lang-selector">
