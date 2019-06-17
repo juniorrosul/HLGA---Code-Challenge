@@ -72,7 +72,11 @@ class BreedsController extends Controller
      */
     public function index(BreedGetRequest $request)
     {
-        $breeds = $this->breedContract->getByName($request->name);
+        if ($request->has('page')) {
+            $breeds = $this->breedContract->getByNamePaginated($request->name, $request->page);
+        } else {
+            $breeds = $this->breedContract->getByName($request->name);
+        }
 
         return response()
             ->json($breeds);

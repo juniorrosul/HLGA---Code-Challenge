@@ -3,6 +3,7 @@
 namespace App\Contracts;
 
 use App\Breed;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -25,6 +26,14 @@ interface BreedContract
      * @return Collection
      */
     public function getByName(string $breedName) : Collection;
+
+    /**
+     * @param string $breedName
+     * @param int    $pageNumber
+     *
+     * @return LengthAwarePaginator
+     */
+    public function getByNamePaginated(string $breedName, int $pageNumber) : LengthAwarePaginator;
 
     /**
      * @param string $id

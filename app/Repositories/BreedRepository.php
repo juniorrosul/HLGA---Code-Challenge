@@ -6,6 +6,7 @@ use App\Contracts\BreedContract;
 use App\Breed;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Cache;
@@ -52,6 +53,31 @@ class BreedRepository implements BreedContract
             $breeds = Cache::remember($breedName.'-api', 600, function () use ($_self, $breedName) {
                 return $_self->getByNameFromExternalApi($breedName);
             });
+        }
+
+        return $breeds;
+    }
+
+    /**
+     * @param string $breedName
+     * @param int    $pageNumber
+     *
+     * @return LengthAwarePaginator
+     */
+    public function getByNamePaginated(string $breedName, int $pageNumber) : LengthAwarePaginator
+    {
+        $breeds = $this->getBreedsByNamePaginated($breedName, $pageNumber);
+
+        // Empty result check API for results.
+        if (empty($breeds) or $breeds->count() == 0) {
+            $_self = $this;
+
+            Cache::remember($breedName.'-api', 600, function () use ($_self, $breedName) {
+                return $_self->getByNameFromExternalApi($breedName);
+            });
+
+            $breeds = $this->getBreedsByNamePaginated($breedName, $pageNumber, true);
+
         }
 
         return $breeds;
@@ -195,5 +221,22 @@ class BreedRepository implements BreedContract
         }
 
         return $breeds;
+    }
+
+    private function getBreedsByNamePaginated(string $breedName, int $pageNumber, bool $reCache = false) : LengthAwarePaginator
+    {
+        $cacheName = 'PAG-'.$pageNumber.'-'.$breedName;
+
+        if ($reCache){
+            Cache::forget($cacheName);
+        }
+
+        return Cache::remember($cacheName, 600,function () use ($breedName) {
+            try {
+                return Breed::where('name', 'like', $breedName.'%')->paginate();
+            } catch (QueryException $e) {
+                return new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15);
+            }
+        });
     }
 }
