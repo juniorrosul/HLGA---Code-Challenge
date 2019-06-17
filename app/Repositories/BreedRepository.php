@@ -28,7 +28,11 @@ class BreedRepository implements BreedContract
         });
 
         if (empty($breeds) or $breeds->count() == 0) {
-            $breeds = $this->loadFromExternalApi($breedName);
+            $_self = $this;
+
+            $breeds = Cache::remember($breedName.'-api', 600, function () use ($_self, $breedName) {
+                return $_self->loadFromExternalApi($breedName);
+            });
         }
 
         return $breeds;
