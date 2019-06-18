@@ -1,71 +1,144 @@
 <p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+# HostGator Latin America - Code Challenge | v0.1.0
 
-## About Laravel
+This is a challenge code application. The main objective is create a PHP Web API that consults the Cat API: ​`https://docs.thecatapi.com`.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Constraints 
+   
+   1. Use the RESTful standard;
+   2. Use the proper HTTP verbs and statuses;
+   3. It must be a PHP composer application;
+   4. The PHP version should be 7 or above;
+   5. There is no need to worry about pagination;
+   6. The API must be public (no need to worry about authentication);
+   7. Feel free to use any third-party library;
+   8. The project must be on Github;
+   9. If you find any blocker while solving the challenge, feel free to apply any solution you find  necessary to complete it 
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Using the API
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+All API documentation are available at: `[example.com]/docs`. But can be showed below:
 
-## Learning Laravel
+- `GET [example.com]/breeds/?name=sib`
+    - Search all breeds starting with query string `name`
+- `GET [example.com]/breeds/?name=sib&experimental=true`
+    - Search all breeds starting with query string `name`
+    - `experimental` query string bring breeds with this tag
+- `GET [example.com]/breeds/?name=sib&page=1`
+    - Search all breeds starting with query string `name`
+    - Return paginated object, if query string `page` is available.
+- `GET [example.com]/breeds/{breedID}`
+    - Search a local breed with exact `breed_id`
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Configurations
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1400 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Initial configuration
 
-## Laravel Sponsors
+This application was built on [Laravel framework](https://laravel.com). For first run some configurations are needed:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+- Copy `.env.example` to `.env`;
+- Make all changes on `.env` file with your configurations;
+- Run `composer install`;
+- Run `php artisan key:generate`;
+- Run `php artisan migrate`;
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
-- [We Are The Robots Inc.](https://watr.mx/)
-- [Understand.io](https://www.understand.io/)
-- [Abdel Elrafa](https://abdelelrafa.com)
-- [Hyper Host](https://hyper.host)
+This will make your application ready to run on develop or production environment.
 
-## Contributing
+Running the application on different environments:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- NGINX
+    ```
+    server {
+    	listen 80 default_server;
+    
+    	server_name example.com www.example.com;
+    
+    	access_log /srv/www/example.com/logs/access.log;
+    	error_log /srv/www/example.com/logs/error.log;
+    
+    	root /srv/www/example.com/public;
+    	index index.php index.html;
+    
+    	# serve static files directly
+    	location ~* \.(jpg|jpeg|gif|css|png|js|ico|html)$ {
+    		access_log off;
+    		expires max;
+    		log_not_found off;
+    	}
+    
+    	# removes trailing slashes (prevents SEO duplicate content issues)
+    	if (!-d $request_filename)
+    	{
+    		rewrite ^/(.+)/$ /$1 permanent;
+    	}
+    
+    	# enforce NO www
+    	if ($host ~* ^www\.(.*))
+    	{
+    		set $host_without_www $1;
+    		rewrite ^/(.*)$ $scheme://$host_without_www/$1 permanent;
+    	}
+    
+    	# unless the request is for a valid file (image, js, css, etc.), send to bootstrap
+    	if (!-e $request_filename)
+    	{
+    		rewrite ^/(.*)$ /index.php?/$1 last;
+    		break;
+    	}
+    
+    	location / {
+    		try_files $uri $uri/ /index.php?$query_string;
+    	}
+    
+    	location ~* \.php$ {
+    		try_files $uri = 404;
+    		fastcgi_split_path_info ^(.+\.php)(/.+)$;
+    		fastcgi_pass unix:/var/run/php5-fpm.sock; # may also be: 127.0.0.1:9000;
+    		fastcgi_index index.php;
+    		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    		include fastcgi_params;
+    	}
+    
+    	location ~ /\.ht {
+    		deny all;
+    	}
+    }
+    ```
+- APACHE
 
-## Security Vulnerabilities
+    ```
+    <VirtualHost *:80>
+      ServerName sample.test
+      DocumentRoot /var/www/sample/public/
+      Options Indexes FollowSymLinks
+    
+      <Directory "/var/www/sample/public/">
+        AllowOverride All
+        <IfVersion < 2.4>
+          Allow from all
+        </IfVersion>
+        <IfVersion >= 2.4>
+          Require all granted
+        </IfVersion>
+      </Directory>
+    
+    </VirtualHost>
+    ```
+- PHP local server
+    ```
+    php artisan serve
+    ``` 
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Generate/Regenerate API documentation
+
+Run CLI command on root folder: `php artisan apidoc:generate`. 
+
+> Running application using `php artisan serve` or `php -S 127.0.0.1` documentation will not display properly, its necessary to update manually the assets on `public\docs\index.html` 
+
+### Generate API for 3th party CatAPI
+
+Access https://thecatapi.com and follow the guide line.
 
 ## License
 

@@ -13,6 +13,11 @@ use Illuminate\Http\Request;
 |
 */
 
+Route::group(['prefix' => 'breeds'], function () {
+    Route::get('/', 'BreedsController@index');
+    Route::get('/{breedId}', 'BreedsController@show');
+});
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
