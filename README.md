@@ -41,6 +41,7 @@ This application was built on [Laravel framework](https://laravel.com). For firs
 - Make all changes on `.env` file with your configurations;
 - Run `composer install`;
 - Run `php artisan key:generate`;
+- Run `php artisan migrate`;
 
 This will make your application ready to run on develop or production environment.
 
